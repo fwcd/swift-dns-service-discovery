@@ -22,6 +22,14 @@ let package = Package(
             name: "DNSServiceDiscovery",
             dependencies: [
                 .product(name: "ServiceDiscovery", package: "swift-service-discovery"),
+                .target(name: "CDNSSD"),
+            ]
+        ),
+        .systemLibrary(
+            name: "CDNSSD",
+            pkgConfig: "avahi-compat-libdns_sd",
+            providers: [
+                .apt(["libavahi-compat-libdnssd-dev"]),
             ]
         ),
         .testTarget(
