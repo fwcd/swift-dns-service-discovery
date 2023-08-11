@@ -7,9 +7,13 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         .seconds(16)
     }
 
+    public init() {
+
+    }
+
     public func lookup(
         _ service: DNSService,
-        deadline: DispatchTime?,
+        deadline: DispatchTime? = nil,
         callback: @escaping (Result<[DNSInstance], Error>) -> Void
     ) {
         // TODO

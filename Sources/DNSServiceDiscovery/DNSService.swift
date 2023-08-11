@@ -2,11 +2,16 @@
 /// e.g. `_services._dns-sd._udp.<domain>`.
 public struct DNSService: Hashable, CustomStringConvertible {
     public var type: ServiceType
-    public var domain: Domain = .local
+    public var domain: Domain
 
     /// The DNS-SD-style domain.
     public var description: String {
         "\(type).\(domain)"
+    }
+
+    public init(type: ServiceType, domain: Domain = .local) {
+        self.type = type
+        self.domain = domain
     }
 
     /// A DNS-SD service types.
