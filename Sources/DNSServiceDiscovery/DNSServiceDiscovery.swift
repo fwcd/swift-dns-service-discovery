@@ -21,7 +21,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         let deadline = deadline ?? .now() + defaultLookupTimeout
 
         // TODO: Browse until deadline for multiple services
-        // TODO: Why doesn't this return?
+        // TODO: Why doesn't the callback get called?
 
         browse(service: service) { instance in
             callback(Result { [try instance.get()] })
