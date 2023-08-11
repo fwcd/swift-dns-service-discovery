@@ -22,6 +22,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
 
         // TODO: Browse until deadline for multiple services
         // TODO: Why doesn't the callback get called?
+        // TODO: Read this doc in detail: https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Introduction.html
 
         browse(service: service) { instance in
             callback(Result { [try instance.get()] })
