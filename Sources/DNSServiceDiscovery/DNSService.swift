@@ -1,15 +1,20 @@
 /// A structured representation of a DNS-SD-style domain for querying,
 /// e.g. `_services._dns-sd._udp.<domain>`.
-public struct DNSService: Hashable {
+public struct DNSService: Hashable, CustomStringConvertible {
     public var type: ServiceType
     public var domain: Domain = .local
+
+    /// The DNS-SD-style domain.
+    public var description: String {
+        "\(type).\(domain)"
+    }
 
     /// A DNS-SD service types.
     /// 
     /// A list of available services can be found here:
     /// - http://www.dns-sd.org/servicetypes.html
     /// - https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
-    public struct ServiceType: RawRepresentable, ExpressibleByStringLiteral, Hashable {
+    public struct ServiceType: RawRepresentable, ExpressibleByStringLiteral, Hashable, CustomStringConvertible {
         /// A DNS-service whose instances resolve to available DNS-SD service types.
         public static let dnsSdServices: Self = "_services._dns-sd._udp"
 
@@ -32,6 +37,10 @@ public struct DNSService: Hashable {
 
         public let rawValue: String
 
+        public var description: String {
+            rawValue
+        }
+
         public init(rawValue: String) {
             self.rawValue = rawValue
         }
@@ -42,11 +51,15 @@ public struct DNSService: Hashable {
     }
 
     /// A domain used for DNS-SD queries.
-    public struct Domain: RawRepresentable, ExpressibleByStringLiteral, Hashable {
+    public struct Domain: RawRepresentable, ExpressibleByStringLiteral, Hashable, CustomStringConvertible {
         /// The local domain used by mDNS.
         public static let local: Self = "local."
 
         public let rawValue: String
+
+        public var description: String {
+            rawValue
+        }
 
         public init(rawValue: String) {
             self.rawValue = rawValue
