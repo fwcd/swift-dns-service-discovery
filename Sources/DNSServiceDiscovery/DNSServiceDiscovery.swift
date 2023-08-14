@@ -24,14 +24,20 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         deadline: DispatchTime? = nil,
         callback: @escaping (Result<[DNSServiceInstance], Error>) -> Void
     ) {
-        // TODO: Use the deadline
         let deadline = deadline ?? .now() + defaultLookupTimeout
-
+        let uuid = UUID()
         var instances: [DNSServiceInstance] = []
 
+        queue.asyncAfter(deadline: deadline) { [self] in
+            if activeServices[uuid] != nil {
+                callback(.success(instances))
+                activeServices[uuid] = nil
+            }
+        }
+
         do {
-            let uuid = UUID()
             let service = try DNSService.browse(query: query) { [unowned self] in
+                guard activeServices[uuid] != nil else { return }
                 do {
                     let browseInstance = try $0.get()
                     if browseInstance.flags.contains(.moreComing) {
