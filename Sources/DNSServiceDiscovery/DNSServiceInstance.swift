@@ -8,6 +8,8 @@ public struct DNSServiceInstance: Hashable {
     public var domain: Domain
     /// The interface index on which the service was discovered.
     public var interfaceIndex: UInt32
+    /// The IP address and port.
+    public var addressInfo: AddressInfo? = nil
     /// The TXT record key-value pairs. Only provided during resolution.
     public var txtRecord: [String: String] = [:]
 }
