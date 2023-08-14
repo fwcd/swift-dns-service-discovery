@@ -1,4 +1,5 @@
 import Dispatch
+import Foundation
 import ServiceDiscovery
 
 /// A facility for performing discovery of DNS service instances.
@@ -6,6 +7,8 @@ import ServiceDiscovery
 public class DNSServiceDiscovery: ServiceDiscovery {
     /// The queue on which callbacks will be scheduled.
     private let queue = DispatchQueue(label: "DNSServiceDiscovery")
+    /// Services that are actively being queried.
+    private var activeServices: [UUID: DNSService] = [:]
 
     public var defaultLookupTimeout: DispatchTimeInterval {
         // TODO
@@ -24,16 +27,27 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         // TODO: Use the deadline
         let deadline = deadline ?? .now() + defaultLookupTimeout
 
-        // TODO: Browse until deadline for multiple services
-        // TODO: Why doesn't the callback get called?
-        // TODO: Read this doc in detail: https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Introduction.html
+        var instances: [DNSServiceInstance] = []
 
         do {
-            let service = try DNSService.browse(query: query) { instance in
-                callback(Result { [try instance.get()] })
+            let uuid = UUID()
+            let service = try DNSService.browse(query: query) { [unowned self] in
+                do {
+                    let browseInstance = try $0.get()
+                    if browseInstance.flags.contains(.moreComing) {
+                        instances.append(browseInstance.instance)
+                    } else {
+                        callback(.success(instances))
+                        activeServices[uuid] = nil
+                    }
+                } catch {
+                    callback(.failure(error))
+                    activeServices[uuid] = nil
+                }
             }
 
             try service.setDispatchQueue(queue)
+            activeServices[uuid] = service
         } catch {
             callback(.failure(error))
         }

@@ -5,7 +5,9 @@ let sd = DNSServiceDiscovery()
 
 print("Browsing...")
 sd.lookup(DNSServiceQuery(type: .dnsSdServices)) { instances in
-    print("Instances: \(instances)")
+    for instance in try! instances.get() {
+        print(instance)
+    }
 }
 
 dispatchMain()
