@@ -40,12 +40,13 @@ final class DNSService {
         let identifierBox = IdentifierBox()
         browseCallbacks[identifierBox.wrappedIdentifier] = browseCallback
 
-        let callback: CDNSSD.DNSServiceBrowseReply = { (serviceRef, flags, errorCode, interfaceIndex, rawName, rawType, rawDomain, identifier) in
+        let callback: CDNSSD.DNSServiceBrowseReply = { (serviceRef, flags, interfaceIndex, rawError, rawName, rawType, rawDomain, identifier) in
             guard let identifier,
                   let browseCallback = browseCallbacks[identifier] else { return }
 
-            guard errorCode == 0 else {
-                browseCallback(.failure(DNSServiceError.asyncError(errorCode)))
+            let error = DNSServiceError.Internal(rawError)
+            guard case .noError = error else {
+                browseCallback(.failure(DNSServiceError.internal(error)))
                 return
             }
 
@@ -61,10 +62,10 @@ final class DNSService {
             })
         }
 
-        let error = DNSServiceBrowse(&serviceRef, flags, interfaceIndex, rawType, rawDomain, callback, identifierBox.wrappedIdentifier)
-        guard error == kDNSServiceErr_NoError else {
-            // TODO: Map kDNSServiceErr constants to high-level errors
-            throw DNSServiceError.syncError(error)
+        let rawError = DNSServiceBrowse(&serviceRef, flags, interfaceIndex, rawType, rawDomain, callback, identifierBox.wrappedIdentifier)
+        let error = DNSServiceError.Internal(rawError)
+        guard case .noError = error else {
+            throw DNSServiceError.internal(error)
         }
 
         guard let serviceRef else {
