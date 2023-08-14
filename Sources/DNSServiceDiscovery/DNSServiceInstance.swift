@@ -6,4 +6,6 @@ public struct DNSServiceInstance: Hashable {
     public var name: String
     /// The interface index on which the service was discovered.
     public var interfaceIndex: UInt32
+    /// The TXT record key-value pairs. Only provided during resolution.
+    public var txtRecord: [String: String] = [:]
 }

@@ -11,6 +11,13 @@ private struct ResolveQuery {
 
 private var resolveQueries: [Identifier: ResolveQuery] = [:]
 
+private func parse(rawTxtRecord: String) -> [String: String] {
+    Dictionary(uniqueKeysWithValues: rawTxtRecord.split(separator: " ").map {
+        let parsed = $0.split(separator: "=").map(String.init)
+        return (parsed[0], parsed[1])
+    })
+}
+
 extension DNSService {
     /// Resolves a service by name. Note that either a call to `.setDispatchQueue` or
     /// repeated invocations of `.processResult` will be needed, otherwise the callback will
@@ -27,7 +34,7 @@ extension DNSService {
         }
         resolveQueries[identifierBox.wrappedIdentifier] = ResolveQuery(name: name, serviceType: serviceType, domain: domain, callback: callback)
 
-        let callback: CDNSSD.DNSServiceResolveReply = { (serviceRef, rawFlags, interfaceIndex, rawError, rawName, rawHostTarget, port, txtLen, txtRecord, identifier) in
+        let callback: CDNSSD.DNSServiceResolveReply = { (serviceRef, rawFlags, interfaceIndex, rawError, rawName, rawHostTarget, port, txtLen, rawTxtRecord, identifier) in
             guard let identifier,
                   let resolveQuery = resolveQueries[identifier] else { return }
 
@@ -35,9 +42,9 @@ extension DNSService {
                 try DNSServiceError.wrapInternal { rawError }
 
                 let flags = Flags(rawValue: rawFlags)
-
+                let txtRecord = rawTxtRecord.map(String.init(cString:)).map(parse(rawTxtRecord:)) ?? [:]
                 let query = DNSServiceQuery(name: resolveQuery.name, type: resolveQuery.serviceType, domain: resolveQuery.domain)
-                let instance = DNSServiceInstance(query: query, name: resolveQuery.name, interfaceIndex: interfaceIndex)
+                let instance = DNSServiceInstance(query: query, name: resolveQuery.name, interfaceIndex: interfaceIndex, txtRecord: txtRecord)
                 let foundInstance = FoundInstance(instance: instance, flags: flags)
 
                 return foundInstance
