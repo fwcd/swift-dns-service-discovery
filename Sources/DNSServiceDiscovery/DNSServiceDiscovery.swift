@@ -1,7 +1,12 @@
 import Dispatch
 import ServiceDiscovery
 
+/// A facility for performing discovery of DNS service instances.
+/// Callbacks will be scheduled on an internal queue.
 public class DNSServiceDiscovery: ServiceDiscovery {
+    /// The queue on which callbacks will be scheduled.
+    private let queue = DispatchQueue(label: "DNSServiceDiscovery")
+
     public var defaultLookupTimeout: DispatchTimeInterval {
         // TODO
         .seconds(16)
@@ -12,7 +17,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
     }
 
     public func lookup(
-        _ service: DNSServiceQuery,
+        _ query: DNSServiceQuery,
         deadline: DispatchTime? = nil,
         callback: @escaping (Result<[DNSServiceInstance], Error>) -> Void
     ) {
@@ -23,13 +28,13 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         // TODO: Why doesn't the callback get called?
         // TODO: Read this doc in detail: https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Introduction.html
 
-        browse(service: service) { instance in
+        DNSService.browse(query: query) { instance in
             callback(Result { [try instance.get()] })
         }
     }
 
     public func subscribe(
-        to service: DNSServiceQuery,
+        to query: DNSServiceQuery,
         onNext nextResultHandler: @escaping (Result<[DNSServiceInstance], Error>) -> Void,
         onComplete completionHandler: @escaping (CompletionReason) -> Void
     ) -> CancellationToken {
@@ -40,12 +45,4 @@ public class DNSServiceDiscovery: ServiceDiscovery {
 
 // MARK: Custom error types
 
-extension DNSServiceDiscovery {
-    public enum BrowseError: Error {
-        case syncError(Int32)
-        case asyncError(UInt32)
-        case invalidServiceType
-        case invalidDomain
-        case invalidName
-    }
-}
+
