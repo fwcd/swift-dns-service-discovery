@@ -4,4 +4,6 @@ public struct DNSServiceInstance: Hashable {
     public var query: DNSServiceQuery
     /// The instance name.
     public var name: String
+    /// The interface index on which the service was discovered.
+    public var interfaceIndex: Int32
 }

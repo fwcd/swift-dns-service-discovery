@@ -55,7 +55,7 @@ final class DNSService {
                 guard let name = rawName.flatMap(String.init(cString:)) else { throw DNSServiceError.invalidName }
 
                 let query = DNSServiceQuery(type: serviceType, domain: domain)
-                let instance = DNSServiceInstance(query: query, name: name)
+                let instance = DNSServiceInstance(query: query, name: name, interfaceIndex: interfaceIndex)
 
                 return instance
             })
