@@ -39,7 +39,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         }
 
         do {
-            let service = try DNSService.browse(serviceType: query.type, domain: query.domain) { [unowned self] in
+            let service = try DNSService.query(query) { [unowned self] in
                 guard activeServices[uuid] != nil else { return }
                 do {
                     let browseInstance = try $0.get()
@@ -73,7 +73,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         }
 
         do {
-            let service = try DNSService.browse(serviceType: query.type, domain: query.domain) { [unowned self] in
+            let service = try DNSService.query(query) { [unowned self] in
                 guard activeServices[uuid] != nil else { return }
                 do {
                     let foundInstance = try $0.get()
