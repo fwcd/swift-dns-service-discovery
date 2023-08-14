@@ -10,6 +10,14 @@ extension DNSService {
         let instance: DNSServiceInstance
         /// Internal flags set by the C library. The most interesting one is probably `.moreComing`.
         let flags: Flags
+
+        func update(instances: inout [DNSServiceInstance]) {
+            if flags.contains(.add) {
+                instances.append(instance)
+            } else {
+                instances.removeAll { $0 == instance }
+            }
+        }
     }
 
     /// Starts browsing a service query. Note that either a call to `.setDispatchQueue` or

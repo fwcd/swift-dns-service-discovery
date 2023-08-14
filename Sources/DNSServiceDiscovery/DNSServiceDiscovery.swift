@@ -43,11 +43,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
                 guard activeServices[uuid] != nil else { return }
                 do {
                     let browseInstance = try $0.get()
-                    if browseInstance.flags.contains(.add) {
-                        instances.append(browseInstance.instance)
-                    } else {
-                        instances.removeAll { browseInstance.instance == $0 }
-                    }
+                    browseInstance.update(instances: &instances)
                     if !browseInstance.flags.contains(.moreComing) {
                         finish(with: .success(instances))
                     }
@@ -81,11 +77,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
                 guard activeServices[uuid] != nil else { return }
                 do {
                     let browseInstance = try $0.get()
-                    if browseInstance.flags.contains(.add) {
-                        instances.append(browseInstance.instance)
-                    } else {
-                        instances.removeAll { browseInstance.instance == $0 }
-                    }
+                    browseInstance.update(instances: &instances)
                     if !browseInstance.flags.contains(.moreComing) {
                         nextResultHandler(.success(instances))
                     }
