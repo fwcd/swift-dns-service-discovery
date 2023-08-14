@@ -36,9 +36,16 @@ final class DNSService {
 
     /// Schedules the browse callback to be received on the given dispatch queue.
     func setDispatchQueue(_ queue: DispatchQueue) throws {
+        #if canImport(Darwin)
         try DNSServiceError.wrapInternal {
             DNSServiceSetDispatchQueue(wrappedRef, queue)
         }
+        #else
+        queue.async {
+            // FIXME: Implement this, see https://github.com/fwcd/swift-dns-service-discovery/issues/1
+            fatalError("DNSService.setDispatchQueue is not implemented on non-Darwin-platforms yet!")
+        }
+        #endif
     }
 
     /// Manually pumps an event by reading a reply from the daemon.
