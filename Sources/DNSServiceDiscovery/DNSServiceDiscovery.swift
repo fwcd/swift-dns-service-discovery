@@ -11,8 +11,7 @@ public class DNSServiceDiscovery: ServiceDiscovery {
     private var activeServices: [UUID: DNSService] = [:]
 
     public var defaultLookupTimeout: DispatchTimeInterval {
-        // TODO
-        .seconds(16)
+        .seconds(4)
     }
 
     public init(queue: DispatchQueue = DispatchQueue(label: "DNSServiceDiscovery")) {
