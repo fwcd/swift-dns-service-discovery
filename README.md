@@ -17,7 +17,7 @@ The library draws inspiration from
 - https://github.com/rhx/CDNS_SD, a simpler Swift system library wrapper for `dns_sd`
     - BSD-2-licensed (Copyright (c) 2016, Rene Hexel)
 
-Useful documentation for the `dns_sd` library:
+It also would not have been possible without the following documentation surrounding the `dns_sd` library:
 
-- [Apple's documentation archive](https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1)
-- [An example of DNS-SD on Windows](https://marknelson.us/posts/2011/10/25/dns-service-discovery-on-windows.html)
+- [Apple's documentation archive](https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1), describing the low-level DNS-SD API
+- [DNS Service Discovery on Windows](https://marknelson.us/posts/2011/10/25/dns-service-discovery-on-windows.html), providing an example-oriented overview of the library and an explanation of how the callbacks are driven
