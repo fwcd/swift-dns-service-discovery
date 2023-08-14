@@ -5,6 +5,8 @@ public enum DNSServiceError: Error, Hashable {
     case invalidServiceType
     case invalidDomain
     case invalidName
+    case noAddress
+    case invalidAddressFamily(UInt8)
     case noServiceRef
 
     // Based on https://github.com/nallick/dns_sd/blob/9e9841c131cc1357fc63b69ff75d6d91e45b8429/Sources/dns_sd/Error.swift
