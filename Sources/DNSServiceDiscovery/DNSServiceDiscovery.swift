@@ -28,8 +28,14 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         // TODO: Why doesn't the callback get called?
         // TODO: Read this doc in detail: https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Introduction.html
 
-        DNSService.browse(query: query) { instance in
-            callback(Result { [try instance.get()] })
+        do {
+            let service = try DNSService.browse(query: query) { instance in
+                callback(Result { [try instance.get()] })
+            }
+
+            try service.setDispatchQueue(queue)
+        } catch {
+            callback(.failure(error))
         }
     }
 

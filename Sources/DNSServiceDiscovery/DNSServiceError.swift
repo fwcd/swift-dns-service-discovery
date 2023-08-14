@@ -35,6 +35,15 @@ public enum DNSServiceError: Error, Hashable {
         case doubleNAT = -65558          // kDNSServiceErr_DoubleNAT
         case badTime = -65559            // kDNSServiceErr_BadTime
     }
+
+    /// Wraps an erroring action in a high-level `DNSServiceError`.
+    static func wrapInternal(action: () -> DNSServiceErrorType) throws {
+        let rawError = action()
+        let error = DNSServiceError.Internal(rawError)
+        guard case .noError = error else {
+            throw DNSServiceError.internal(error)
+        }
+    }
 }
 
 extension DNSServiceError.Internal {
