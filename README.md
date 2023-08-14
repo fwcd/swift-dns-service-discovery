@@ -2,7 +2,7 @@
 
 An implementation of the [Swift Service Discovery API](https://github.com/apple/swift-service-discovery) using [DNS-based Service Discovery (DNS-SD)](https://en.wikipedia.org/wiki/Zero-configuration_networking#DNS-SD), also known as Bonjour, Zeroconf or Avahi.
 
-Uses the `dns_sd` library, which on macOS is provided and on Linux requires the Avahi compatibility layer. On Ubuntu, the following package can be used:
+Uses the `dns_sd` library, which on macOS/Windows is provided by Bonjour and on Linux requires the Avahi compatibility layer. On Ubuntu, the following package can be used:
 
 ```sh
 sudo apt install libavahi-compat-libdnssd-dev
@@ -16,3 +16,8 @@ The library draws inspiration from
     - MIT-licensed (Copyright (c) 2019 Purgatory Design).
 - https://github.com/rhx/CDNS_SD, a simpler Swift system library wrapper for `dns_sd`
     - BSD-2-licensed (Copyright (c) 2016, Rene Hexel)
+
+Useful documentation for the `dns_sd` library:
+
+- [Apple's documentation archive](https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1)
+- [An example of DNS-SD on Windows](https://marknelson.us/posts/2011/10/25/dns-service-discovery-on-windows.html)
