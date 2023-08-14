@@ -6,7 +6,7 @@ import ServiceDiscovery
 /// Callbacks will be scheduled on an internal queue.
 public class DNSServiceDiscovery: ServiceDiscovery {
     /// The queue on which callbacks will be scheduled.
-    private let queue = DispatchQueue(label: "DNSServiceDiscovery")
+    private let queue: DispatchQueue
     /// Services that are actively being queried.
     private var activeServices: [UUID: DNSService] = [:]
 
@@ -15,8 +15,8 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         .seconds(16)
     }
 
-    public init() {
-
+    public init(queue: DispatchQueue = DispatchQueue(label: "DNSServiceDiscovery")) {
+        self.queue = queue
     }
 
     public func lookup(
