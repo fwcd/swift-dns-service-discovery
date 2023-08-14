@@ -1,3 +1,5 @@
+#if canImport(Darwin)
+
 import CDNSSD
 
 private typealias Identifier = UnsafeMutableRawPointer
@@ -55,3 +57,5 @@ extension DNSService {
         return DNSService(identifierBox: identifierBox, wrappedRef: serviceRef)
     }
 }
+
+#endif
