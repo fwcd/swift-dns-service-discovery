@@ -11,3 +11,13 @@ public struct DNSServiceQuery: Hashable {
         self.domain = domain
     }
 }
+
+extension DNSServiceQuery {
+    public init(_ instance: DNSServiceInstance) {
+        self.init(
+            name: instance.name,
+            type: instance.type,
+            domain: instance.domain
+        )
+    }
+}

@@ -43,8 +43,7 @@ extension DNSService {
 
                 let flags = Flags(rawValue: rawFlags)
                 let txtRecord = rawTxtRecord.map(String.init(cString:)).map(parse(rawTxtRecord:)) ?? [:]
-                let query = DNSServiceQuery(name: resolveQuery.name, type: resolveQuery.serviceType, domain: resolveQuery.domain)
-                let instance = DNSServiceInstance(query: query, name: resolveQuery.name, interfaceIndex: interfaceIndex, txtRecord: txtRecord)
+                let instance = DNSServiceInstance(name: resolveQuery.name, type: resolveQuery.serviceType, domain: resolveQuery.domain, interfaceIndex: interfaceIndex, txtRecord: txtRecord)
                 let foundInstance = FoundInstance(instance: instance, flags: flags)
 
                 return foundInstance

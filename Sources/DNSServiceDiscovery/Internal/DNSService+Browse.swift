@@ -31,8 +31,7 @@ extension DNSService {
                 guard let name = rawName.flatMap(String.init(cString:)) else { throw DNSServiceError.invalidName }
                 let flags = Flags(rawValue: rawFlags)
 
-                let query = DNSServiceQuery(type: serviceType, domain: domain)
-                let instance = DNSServiceInstance(query: query, name: name, interfaceIndex: interfaceIndex)
+                let instance = DNSServiceInstance(name: name, type: serviceType, domain: domain, interfaceIndex: interfaceIndex)
                 let foundInstance = FoundInstance(instance: instance, flags: flags)
 
                 return foundInstance
