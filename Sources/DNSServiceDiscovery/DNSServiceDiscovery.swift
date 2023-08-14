@@ -66,7 +66,9 @@ extension DNSServiceDiscovery {
         // internally once when initializing the DNSServiceDiscovery object and then just pass the found
         // services immediately in lookup?)
         // Also, apparently browse sessions are supposed to run throughout the entire application,
-        // we should probably read https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1
+        // we should probably read
+        // - https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1
+        // - https://marknelson.us/posts/2011/10/25/dns-service-discovery-on-windows.html
         // carefully.
         var reference: CDNSSD.DNSServiceRef?
         let flags: CDNSSD.DNSServiceFlags = 0
