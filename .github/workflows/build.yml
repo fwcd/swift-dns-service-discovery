@@ -13,8 +13,7 @@ jobs:
       matrix:
         os:
         - ubuntu-latest
-        # TODO: Reenable macOS build once the repo is open-sourced
-        # - macos-latest
+        - macos-latest
         swift: ['5.8']
 
     runs-on: ${{ matrix.os }}
