@@ -11,11 +11,29 @@ private struct ResolveQuery {
 
 private var resolveQueries: [Identifier: ResolveQuery] = [:]
 
-private func parse(rawTxtRecord: String) -> [String: String] {
-    Dictionary(uniqueKeysWithValues: rawTxtRecord.split(separator: " ").map {
-        let parsed = $0.split(separator: "=").map(String.init)
-        return (parsed[0], parsed[1])
-    })
+private func readCString(from pointer: UnsafePointer<UInt8>, in range: Range<Int>) -> String {
+    var chars: [UInt8] = []
+    for i in range {
+        chars.append(pointer[i])
+    }
+    chars.append(0)
+    return String(cString: chars)
+}
+
+private func parse(rawTxtRecord: UnsafePointer<UInt8>, txtLen: Int) -> [String: String] {
+    var txtRecord: [String: String] = [:]
+    var i = 0
+    while i < txtLen {
+        let length = Int(rawTxtRecord[i])
+        i += 1
+        let rawPair = readCString(from: rawTxtRecord, in: i..<(i + length))
+        let parsedPair = rawPair.split(separator: "=").map(String.init)
+        if parsedPair.count >= 2 {
+            txtRecord[parsedPair[0]] = parsedPair[1]
+        }
+        i += length
+    }
+    return txtRecord
 }
 
 extension DNSService {
@@ -44,7 +62,7 @@ extension DNSService {
                 var flags = Flags(rawValue: rawFlags)
                 flags.insert(.add) // We always consider resolved instances "added" so we can deal with them in a uniform way on a higher level
 
-                let txtRecord = rawTxtRecord.map(String.init(cString:)).map(parse(rawTxtRecord:)) ?? [:]
+                let txtRecord = rawTxtRecord.map { parse(rawTxtRecord: $0, txtLen: Int(txtLen)) } ?? [:]
                 let instance = DNSServiceInstance(name: resolveQuery.name, type: resolveQuery.serviceType, domain: resolveQuery.domain, interfaceIndex: interfaceIndex, txtRecord: txtRecord)
                 let foundInstance = FoundInstance(instance: instance, flags: flags)
 
