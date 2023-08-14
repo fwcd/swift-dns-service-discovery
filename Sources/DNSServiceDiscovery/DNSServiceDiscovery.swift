@@ -13,9 +13,9 @@ public class DNSServiceDiscovery: ServiceDiscovery {
     }
 
     public func lookup(
-        _ service: DNSService,
+        _ service: DNSServiceQuery,
         deadline: DispatchTime? = nil,
-        callback: @escaping (Result<[DNSInstance], Error>) -> Void
+        callback: @escaping (Result<[DNSServiceInstance], Error>) -> Void
     ) {
         // TODO: Use the deadline
         let deadline = deadline ?? .now() + defaultLookupTimeout
@@ -30,8 +30,8 @@ public class DNSServiceDiscovery: ServiceDiscovery {
     }
 
     public func subscribe(
-        to service: DNSService,
-        onNext nextResultHandler: @escaping (Result<[DNSInstance], Error>) -> Void,
+        to service: DNSServiceQuery,
+        onNext nextResultHandler: @escaping (Result<[DNSServiceInstance], Error>) -> Void,
         onComplete completionHandler: @escaping (CompletionReason) -> Void
     ) -> CancellationToken {
         // TODO
@@ -54,12 +54,12 @@ extension DNSServiceDiscovery {
 // MARK: Low-level implementations that wrap the C library.
 
 private typealias Identifier = UnsafeMutableRawPointer
-private var browseCallbacks: [Identifier: (Result<DNSInstance, Error>) -> Void] = [:]
+private var browseCallbacks: [Identifier: (Result<DNSServiceInstance, Error>) -> Void] = [:]
 
 // TODO: Thread-safety
 
 extension DNSServiceDiscovery {
-    private func browse(service: DNSService, browseCallback: @escaping (Result<DNSInstance, Error>) -> Void) {
+    private func browse(service: DNSServiceQuery, browseCallback: @escaping (Result<DNSServiceInstance, Error>) -> Void) {
         // TODO: `DNSServiceBrowse` seems to pass ownership to us and expect us to deallocate this.
         // We should therefore investigate which lifecycle these objects should have and where they
         // should be stored (e.g. in the DNSServiceDiscovery instance? Should we call this browse method
@@ -94,12 +94,12 @@ extension DNSServiceDiscovery {
             }
 
             browseCallback(Result {
-                guard let serviceType = rawType.flatMap(String.init(cString:)).map(DNSService.ServiceType.init(rawValue:)) else { throw BrowseError.invalidServiceType }
-                guard let domain = rawDomain.flatMap(String.init(cString:)).map(DNSService.Domain.init(rawValue:)) else { throw BrowseError.invalidDomain }
+                guard let serviceType = rawType.flatMap(String.init(cString:)).map(DNSServiceType.init(rawValue:)) else { throw BrowseError.invalidServiceType }
+                guard let domain = rawDomain.flatMap(String.init(cString:)).map(Domain.init(rawValue:)) else { throw BrowseError.invalidDomain }
                 guard let name = rawName.flatMap(String.init(cString:)) else { throw BrowseError.invalidName }
 
-                let service = DNSService(type: serviceType, domain: domain)
-                let instance = DNSInstance(service: service, name: name)
+                let query = DNSServiceQuery(type: serviceType, domain: domain)
+                let instance = DNSServiceInstance(query: query, name: name)
 
                 return instance
             })

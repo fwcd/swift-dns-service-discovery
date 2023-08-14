@@ -4,7 +4,7 @@ import Dispatch
 let sd = DNSServiceDiscovery()
 
 print("Browsing...")
-sd.lookup(DNSService(type: .dnsSdServices)) { instances in
+sd.lookup(DNSServiceQuery(type: .dnsSdServices)) { instances in
     print("Instances: \(instances)")
 }
 

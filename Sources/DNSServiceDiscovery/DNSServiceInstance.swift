@@ -1,7 +1,7 @@
 /// A discovered service instance.
-public struct DNSInstance: Hashable {
+public struct DNSServiceInstance: Hashable {
     /// The service type and domain.
-    public var service: DNSService
+    public var query: DNSServiceQuery
     /// The instance name.
     public var name: String
 }
