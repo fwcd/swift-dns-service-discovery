@@ -7,16 +7,16 @@ extension DNSService {
     struct Flags: OptionSet, Hashable {
         let rawValue: CDNSSD.DNSServiceFlags
 
-        static let moreComing           = Self(rawValue: kDNSServiceFlagsMoreComing)
-        static let add                  = Self(rawValue: kDNSServiceFlagsAdd)
-        static let `default`            = Self(rawValue: kDNSServiceFlagsDefault)
-        static let noAutoRename         = Self(rawValue: kDNSServiceFlagsNoAutoRename)
-        static let shared               = Self(rawValue: kDNSServiceFlagsShared)
-        static let unique               = Self(rawValue: kDNSServiceFlagsUnique)
-        static let browseDomains        = Self(rawValue: kDNSServiceFlagsBrowseDomains)
-        static let registrationDomains  = Self(rawValue: kDNSServiceFlagsRegistrationDomains)
-        static let longLivedQuery       = Self(rawValue: kDNSServiceFlagsLongLivedQuery)
-        static let allowRemoteQuery     = Self(rawValue: kDNSServiceFlagsAllowRemoteQuery)
-        static let forceMulticast       = Self(rawValue: kDNSServiceFlagsForceMulticast)
+        static let moreComing           = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsMoreComing))
+        static let add                  = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsAdd))
+        static let `default`            = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsDefault))
+        static let noAutoRename         = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsNoAutoRename))
+        static let shared               = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsShared))
+        static let unique               = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsUnique))
+        static let browseDomains        = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsBrowseDomains))
+        static let registrationDomains  = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsRegistrationDomains))
+        static let longLivedQuery       = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsLongLivedQuery))
+        static let allowRemoteQuery     = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsAllowRemoteQuery))
+        static let forceMulticast       = Self(rawValue: DNSServiceFlags(kDNSServiceFlagsForceMulticast))
     }
 }
