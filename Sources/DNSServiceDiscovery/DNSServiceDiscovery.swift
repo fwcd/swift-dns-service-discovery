@@ -27,14 +27,14 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         let uuid = UUID()
         var instances: [DNSServiceInstance] = []
 
-        func finishWithCallback(_ result: Result<[DNSServiceInstance], Error>) {
+        func finish(with result: Result<[DNSServiceInstance], Error>) {
             activeServices[uuid] = nil
             callback(result)
         }
 
         queue.asyncAfter(deadline: deadline) { [self] in
             if activeServices[uuid] != nil {
-                finishWithCallback(.success(instances))
+                finish(with: .success(instances))
             }
         }
 
@@ -43,20 +43,23 @@ public class DNSServiceDiscovery: ServiceDiscovery {
                 guard activeServices[uuid] != nil else { return }
                 do {
                     let browseInstance = try $0.get()
-                    if browseInstance.flags.contains(.moreComing) {
+                    if browseInstance.flags.contains(.add) {
                         instances.append(browseInstance.instance)
                     } else {
-                        finishWithCallback(.success(instances))
+                        instances.removeAll { browseInstance.instance == $0 }
+                    }
+                    if !browseInstance.flags.contains(.moreComing) {
+                        finish(with: .success(instances))
                     }
                 } catch {
-                    finishWithCallback(.failure(error))
+                    finish(with: .failure(error))
                 }
             }
 
             try service.setDispatchQueue(queue)
             activeServices[uuid] = service
         } catch {
-            finishWithCallback(.failure(error))
+            finish(with: .failure(error))
         }
     }
 
@@ -65,8 +68,42 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         onNext nextResultHandler: @escaping (Result<[DNSServiceInstance], Error>) -> Void,
         onComplete completionHandler: @escaping (CompletionReason) -> Void
     ) -> CancellationToken {
-        // TODO
-        return .init()
+        let uuid = UUID()
+        var instances: [DNSServiceInstance] = []
+
+        func finish(with reason: CompletionReason) {
+            activeServices[uuid] = nil
+            completionHandler(reason)
+        }
+
+        do {
+            let service = try DNSService.browse(query: query) { [unowned self] in
+                guard activeServices[uuid] != nil else { return }
+                do {
+                    let browseInstance = try $0.get()
+                    if browseInstance.flags.contains(.add) {
+                        instances.append(browseInstance.instance)
+                    } else {
+                        instances.removeAll { browseInstance.instance == $0 }
+                    }
+                    if !browseInstance.flags.contains(.moreComing) {
+                        nextResultHandler(.success(instances))
+                    }
+                } catch {
+                    nextResultHandler(.failure(error))
+                }
+            }
+
+            try service.setDispatchQueue(queue)
+            activeServices[uuid] = service
+
+            return CancellationToken(completionHandler: finish(with:))
+        } catch {
+            // TODO: Log error
+            finish(with: .serviceDiscoveryUnavailable)
+
+            return CancellationToken { _ in }
+        }
     }
 }
 
