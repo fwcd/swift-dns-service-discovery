@@ -63,7 +63,14 @@ extension DNSService {
                 flags.insert(.add) // We always consider resolved instances "added" so we can deal with them in a uniform way on a higher level
 
                 let txtRecord = rawTxtRecord.map { parse(rawTxtRecord: $0, txtLen: Int(txtLen)) } ?? [:]
-                let instance = DNSServiceInstance(name: resolveQuery.name, type: resolveQuery.serviceType, domain: resolveQuery.domain, interfaceIndex: interfaceIndex, txtRecord: txtRecord)
+                let instance = DNSServiceInstance(
+                    name: resolveQuery.name,
+                    type: resolveQuery.serviceType,
+                    domain: resolveQuery.domain,
+                    interfaceIndex: interfaceIndex,
+                    port: UInt16(bigEndian: port), // Convert from network byte order
+                    txtRecord: txtRecord
+                )
                 let foundInstance = FoundInstance(instance: instance, flags: flags)
 
                 return foundInstance
