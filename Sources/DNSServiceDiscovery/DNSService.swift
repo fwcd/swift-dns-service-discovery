@@ -58,7 +58,7 @@ public struct DNSService: Hashable, CustomStringConvertible {
     /// A domain used for DNS-SD queries.
     public struct Domain: RawRepresentable, ExpressibleByStringLiteral, Hashable, CustomStringConvertible {
         /// The local domain used by mDNS.
-        public static let local: Self = "local"
+        public static let local: Self = "local."
 
         public let rawValue: String
 
