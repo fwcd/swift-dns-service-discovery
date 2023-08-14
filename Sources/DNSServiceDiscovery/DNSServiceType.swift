@@ -26,6 +26,10 @@ public struct DNSServiceType: RawRepresentable, ExpressibleByStringLiteral, Hash
 
     public let rawValue: String
 
+    public var relative: Self {
+        rawValue.last == "." ? Self(rawValue: String(rawValue.dropLast())) : self
+    }
+
     public var description: String {
         rawValue
     }

@@ -6,7 +6,7 @@ public struct DNSServiceQuery: Hashable, CustomStringConvertible {
 
     /// The DNS-SD-style domain.
     public var description: String {
-        domain == .root ? "\(type)" : "\(type).\(domain)"
+        domain == .root ? "\(type)" : "\(type.relative).\(domain)"
     }
 
     public init(type: DNSServiceType, domain: Domain = .local) {

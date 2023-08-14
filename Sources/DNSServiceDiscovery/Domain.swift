@@ -7,6 +7,10 @@ public struct Domain: RawRepresentable, ExpressibleByStringLiteral, Hashable, Cu
 
     public let rawValue: String
 
+    public var relative: Self {
+        rawValue.last == "." ? Self(rawValue: String(rawValue.dropLast())) : self
+    }
+
     public var description: String {
         rawValue
     }
