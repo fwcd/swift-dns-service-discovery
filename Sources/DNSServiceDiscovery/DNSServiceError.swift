@@ -4,4 +4,5 @@ public enum DNSServiceError: Error {
     case invalidServiceType
     case invalidDomain
     case invalidName
+    case noServiceRef
 }

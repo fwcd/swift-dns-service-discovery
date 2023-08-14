@@ -6,43 +6,43 @@ private var browseCallbacks: [Identifier: (Result<DNSServiceInstance, Error>) ->
 
 // TODO: Thread-safety
 
-/// A low-level, owned wrapper around a `DNSServiceRef` (which internally manages a connection to the mDNSResponder daemon).
-@propertyWrapper
-class DNSService {
-    var wrappedValue: DNSServiceRef
+/// An owned wrapper around an identifier that automatically performs cleanup.
+private class IdentifierBox {
+    var wrappedIdentifier = Identifier.allocate(byteCount: 0, alignment: 0)
 
-    init(wrappedValue: DNSServiceRef) {
-        self.wrappedValue = wrappedValue
+    deinit {
+        browseCallbacks[wrappedIdentifier] = nil
+        wrappedIdentifier.deallocate()
+    }
+}
+
+/// A low-level, owned wrapper around a `DNSServiceRef` (which internally manages a connection to the mDNSResponder daemon).
+final class DNSService {
+    private let identifierBox: IdentifierBox
+    private let wrappedRef: DNSServiceRef
+
+    private init(identifierBox: IdentifierBox, wrappedRef: DNSServiceRef) {
+        self.identifierBox = identifierBox
+        self.wrappedRef = wrappedRef
     }
 
-    static func browse(query: DNSServiceQuery, browseCallback: @escaping (Result<DNSServiceInstance, Error>) -> Void) {
-        // TODO: `DNSServiceBrowse` seems to pass ownership to us and expect us to deallocate this.
-        // We should therefore investigate which lifecycle these objects should have and where they
-        // should be stored (e.g. in the DNSServiceDiscovery instance? Should we call this browse method
-        // internally once when initializing the DNSServiceDiscovery object and then just pass the found
-        // services immediately in lookup?)
-        // Also, apparently browse sessions are supposed to run throughout the entire application,
-        // we should probably read
-        // - https://developer.apple.com/library/archive/documentation/Networking/Conceptual/dns_discovery_api/Articles/browse.html#//apple_ref/doc/uid/TP40002486-SW1
-        // - https://marknelson.us/posts/2011/10/25/dns-service-discovery-on-windows.html
-        // carefully.
-        var reference: CDNSSD.DNSServiceRef?
+    deinit {
+        DNSServiceRefDeallocate(wrappedRef)
+    }
+
+    static func browse(query: DNSServiceQuery, browseCallback: @escaping (Result<DNSServiceInstance, Error>) -> Void) throws -> DNSService {
+        var serviceRef: CDNSSD.DNSServiceRef?
         let flags: CDNSSD.DNSServiceFlags = 0
         let interfaceIndex: UInt32 = 0
         let rawType = query.type.rawValue
         let rawDomain = query.domain.rawValue
 
-        let identifier = Identifier.allocate(byteCount: 0, alignment: 4)
-        browseCallbacks[identifier] = browseCallback
+        let identifierBox = IdentifierBox()
+        browseCallbacks[identifierBox.wrappedIdentifier] = browseCallback
 
-        let callback: CDNSSD.DNSServiceBrowseReply = { (reference, flags, errorCode, interfaceIndex, rawName, rawType, rawDomain, identifier) in
-            guard let identifier else { return }
-            defer {
-                browseCallbacks[identifier] = nil
-                identifier.deallocate()
-            }
-
-            guard let browseCallback = browseCallbacks[identifier] else { return }
+        let callback: CDNSSD.DNSServiceBrowseReply = { (serviceRef, flags, errorCode, interfaceIndex, rawName, rawType, rawDomain, identifier) in
+            guard let identifier,
+                  let browseCallback = browseCallbacks[identifier] else { return }
 
             guard errorCode == 0 else {
                 browseCallback(.failure(DNSServiceError.asyncError(errorCode)))
@@ -61,21 +61,20 @@ class DNSService {
             })
         }
 
-        let error = DNSServiceBrowse(&reference, flags, interfaceIndex, rawType, rawDomain, callback, identifier)
+        let error = DNSServiceBrowse(&serviceRef, flags, interfaceIndex, rawType, rawDomain, callback, identifierBox.wrappedIdentifier)
         guard error == kDNSServiceErr_NoError else {
-            browseCallbacks[identifier] = nil
-            identifier.deallocate()
             // TODO: Map kDNSServiceErr constants to high-level errors
-            browseCallback(.failure(DNSServiceError.syncError(error)))
-            return
+            throw DNSServiceError.syncError(error)
         }
+
+        guard let serviceRef else {
+            throw DNSServiceError.noServiceRef
+        }
+
+        return DNSService(identifierBox: identifierBox, wrappedRef: serviceRef)
     }
 
     func setDispatchQueue(_ queue: DispatchQueue) {
-        DNSServiceSetDispatchQueue(wrappedValue, queue)
-    }
-
-    deinit {
-        DNSServiceRefDeallocate(wrappedValue)
+        DNSServiceSetDispatchQueue(wrappedRef, queue)
     }
 }
