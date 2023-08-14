@@ -27,10 +27,14 @@ public class DNSServiceDiscovery: ServiceDiscovery {
         let uuid = UUID()
         var instances: [DNSServiceInstance] = []
 
+        func finishWithCallback(_ result: Result<[DNSServiceInstance], Error>) {
+            activeServices[uuid] = nil
+            callback(result)
+        }
+
         queue.asyncAfter(deadline: deadline) { [self] in
             if activeServices[uuid] != nil {
-                callback(.success(instances))
-                activeServices[uuid] = nil
+                finishWithCallback(.success(instances))
             }
         }
 
@@ -42,19 +46,17 @@ public class DNSServiceDiscovery: ServiceDiscovery {
                     if browseInstance.flags.contains(.moreComing) {
                         instances.append(browseInstance.instance)
                     } else {
-                        callback(.success(instances))
-                        activeServices[uuid] = nil
+                        finishWithCallback(.success(instances))
                     }
                 } catch {
-                    callback(.failure(error))
-                    activeServices[uuid] = nil
+                    finishWithCallback(.failure(error))
                 }
             }
 
             try service.setDispatchQueue(queue)
             activeServices[uuid] = service
         } catch {
-            callback(.failure(error))
+            finishWithCallback(.failure(error))
         }
     }
 
