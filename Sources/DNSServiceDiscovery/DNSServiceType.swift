@@ -7,8 +7,6 @@ public struct DNSServiceType: RawRepresentable, ExpressibleByStringLiteral, Hash
     /// A DNS-service whose instances resolve to available DNS-SD service types.
     public static let dnsSdServices: Self = "_services._dns-sd._udp"
 
-    // TODO: Add more service types, perhaps even auto-generate them via a macro or script?
-
     public let rawValue: String
 
     public var relative: Self {
