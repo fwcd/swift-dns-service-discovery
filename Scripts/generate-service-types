@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, Literal
+
+import argparse
+import codecs
+import csv
+import itertools
+import urllib.request
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+DNSSERVICEDISCOVERY_SOURCES_DIR = ROOT_DIR / 'Sources' / 'DNSServiceDiscovery'
+
+@dataclass
+class ServiceType:
+    name: str
+    port: str
+    protocol: str
+    description: str
+    assignee: str
+
+def fetch_service_types(registry_csv_url: str) -> Iterable[ServiceType]:
+    with urllib.request.urlopen(registry_csv_url) as f:
+        reader = csv.reader(codecs.iterdecode(f, 'utf-8'))
+        for name, port, protocol, description, assignee, *_ in itertools.islice(reader, 1, None):
+            yield ServiceType(
+                name=name,
+                port=port,
+                protocol=protocol,
+                description=description,
+                assignee=assignee,
+            )
+
+def swift_service_type_constant(service_type: ServiceType) -> str:
+    return f'public static let {service_type.name}: Self = "_{service_type.name}._{service_type.protocol}"'
+
+def swift_service_types_extension(service_types: Iterable[ServiceType]) -> str:
+    return '\n'.join([
+        'extension DNSServiceType {',
+        *(line for s in service_types for line in [
+            f'    /// {s.description} ({s.assignee})',
+            f'    {swift_service_type_constant(s)}',
+        ]),
+        '}',
+    ])
+
+def main():
+    parser = argparse.ArgumentParser(description='Generates Swift definitions of known DNS service types from the IANA registry.')
+    parser.add_argument('-r', '--registry-csv-url', default='https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.csv')
+    parser.add_argument('-o', '--output', type=Path, default=DNSSERVICEDISCOVERY_SOURCES_DIR / 'DNSServiceType+Generated.swift')
+
+    args = parser.parse_args()
+
+    print('==> Fetching service types...')
+    service_types = fetch_service_types(args.registry_csv_url)
+
+    print('==> Generating Swift extension...')
+    extension = swift_service_types_extension(service_types)
+
+    print(f'==> Writing {args.output}')
+    with open(args.output, 'w') as f:
+        f.write(extension)
+
+if __name__ == '__main__':
+    main()
