@@ -11,7 +11,10 @@ import itertools
 import urllib.request
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
+DOWNLOADS_DIR = ROOT_DIR / 'Downloads'
 DNSSERVICEDISCOVERY_SOURCES_DIR = ROOT_DIR / 'Sources' / 'DNSServiceDiscovery'
+
+CACHED_REGISTRY_PATH = DOWNLOADS_DIR / 'service-registry.csv'
 
 @dataclass
 class ServiceType:
@@ -26,9 +29,15 @@ def camel_case(kebab_case: str) -> str:
     return ''.join([segments[0]] + [s.capitalize() for s in segments[1:]])
 
 def fetch_service_types(registry_csv_url: str) -> Iterable[ServiceType]:
-    used_names = set()
-    with urllib.request.urlopen(registry_csv_url) as f:
-        reader = csv.reader(codecs.iterdecode(f, 'utf-8'))
+    if not CACHED_REGISTRY_PATH.exists():
+        CACHED_REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with urllib.request.urlopen(registry_csv_url) as u:
+            with open(CACHED_REGISTRY_PATH, 'wb') as f:
+                f.write(u.read())
+
+    with open(CACHED_REGISTRY_PATH, 'r') as f:
+        used_names = set()
+        reader = csv.reader(f)
         for name, port, protocol, description, assignee, *_ in itertools.islice(reader, 1, None):
             if name not in used_names:
                 used_names.add(name)
