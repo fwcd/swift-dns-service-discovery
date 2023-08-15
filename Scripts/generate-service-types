@@ -21,6 +21,10 @@ class ServiceType:
     description: str
     assignee: str
 
+def camel_case(kebab_case: str) -> str:
+    segments = kebab_case.split('-')
+    return ''.join([segments[0]] + [s.capitalize() for s in segments[1:]])
+
 def fetch_service_types(registry_csv_url: str) -> Iterable[ServiceType]:
     used_names = set()
     with urllib.request.urlopen(registry_csv_url) as f:
@@ -37,7 +41,7 @@ def fetch_service_types(registry_csv_url: str) -> Iterable[ServiceType]:
                 )
 
 def swift_service_type_constant(service_type: ServiceType) -> str:
-    return f'public static let {service_type.name}: Self = "_{service_type.name}._{service_type.protocol}"'
+    return f'public static let {camel_case(service_type.name)}: Self = "_{service_type.name}._{service_type.protocol}"'
 
 def swift_service_types_extension(service_types: Iterable[ServiceType]) -> str:
     return '\n'.join([
