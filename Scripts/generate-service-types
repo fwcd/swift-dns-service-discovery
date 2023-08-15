@@ -22,16 +22,19 @@ class ServiceType:
     assignee: str
 
 def fetch_service_types(registry_csv_url: str) -> Iterable[ServiceType]:
+    used_names = set()
     with urllib.request.urlopen(registry_csv_url) as f:
         reader = csv.reader(codecs.iterdecode(f, 'utf-8'))
         for name, port, protocol, description, assignee, *_ in itertools.islice(reader, 1, None):
-            yield ServiceType(
-                name=name,
-                port=port,
-                protocol=protocol,
-                description=description,
-                assignee=assignee,
-            )
+            if name not in used_names:
+                used_names.add(name)
+                yield ServiceType(
+                    name=name,
+                    port=port,
+                    protocol=protocol,
+                    description=description,
+                    assignee=assignee,
+                )
 
 def swift_service_type_constant(service_type: ServiceType) -> str:
     return f'public static let {service_type.name}: Self = "_{service_type.name}._{service_type.protocol}"'
