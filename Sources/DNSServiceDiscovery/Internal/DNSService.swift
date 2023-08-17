@@ -42,8 +42,7 @@ final class DNSService {
         }
         #else
         queue.async {
-            // FIXME: Implement this, see https://github.com/fwcd/swift-dns-service-discovery/issues/1
-            fatalError("DNSService.setDispatchQueue is not implemented on non-Darwin-platforms yet!")
+            fatalError("Support for non-macOS platforms is work-in-progress, see https://github.com/fwcd/swift-dns-service-discovery/pull/7")
         }
         #endif
     }
