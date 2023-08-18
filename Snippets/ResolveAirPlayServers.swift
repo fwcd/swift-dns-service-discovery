@@ -4,7 +4,7 @@ import Dispatch
 let sd = DNSServiceDiscovery()
 
 print("Resolving all AirPlay servers...")
-sd.lookup(DNSServiceQuery(type: .airplay)) {
+sd.lookup(DNSServiceQuery(type: .airplayTcp)) {
     let instances = try! $0.get()
     for instance in instances {
         sd.lookup(DNSServiceQuery(instance)) {
