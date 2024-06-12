@@ -62,12 +62,14 @@ extension DNSService {
                 var flags = Flags(rawValue: rawFlags)
                 flags.insert(.add) // We always consider resolved instances "added" so we can deal with them in a uniform way on a higher level
 
+                let hostName = rawHostTarget.map { String(cString: $0) }
                 let txtRecord = rawTxtRecord.map { parse(rawTxtRecord: $0, txtLen: Int(txtLen)) } ?? [:]
                 let instance = DNSServiceInstance(
                     name: resolveQuery.name,
                     type: resolveQuery.serviceType,
                     domain: resolveQuery.domain,
                     interfaceIndex: interfaceIndex,
+                    host: hostName,
                     port: UInt16(bigEndian: port), // Convert from network byte order
                     txtRecord: txtRecord
                 )
