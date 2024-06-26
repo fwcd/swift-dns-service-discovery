@@ -11,10 +11,11 @@ jobs:
   build:
     strategy:
       matrix:
-        os:
-        - ubuntu-latest
-        - macos-latest
-        swift: ['5.8']
+        include:
+        - os: ubuntu-latest
+          swift: '5.8'
+        - os: macos-latest
+          swift: '5.10'
 
     runs-on: ${{ matrix.os }}
     steps:
