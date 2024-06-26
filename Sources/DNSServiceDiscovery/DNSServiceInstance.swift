@@ -9,7 +9,7 @@ public struct DNSServiceInstance: Hashable {
     /// The interface index on which the service was discovered.
     public var interfaceIndex: UInt32
     /// The host name of discovered instance machine.
-    public var host: String?
+    public var host: String? = nil
     /// The port on which the instance is running.
     public var port: UInt16? = nil
     /// The TXT record key-value pairs. Only provided during resolution.
