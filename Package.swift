@@ -14,6 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-service-discovery.git", from: "1.2.1"),
+        .package(url: "https://github.com/apple/swift-docc-plugin.git", from: "1.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
